@@ -1,0 +1,23 @@
+2013-04-30 23:32:46,784 -696804 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:0	RMSE:0.6343127347773655
+2013-04-30 23:57:47,290 -2197310 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:1	RMSE:0.7171249318479391
+2013-05-01 00:48:14,166 -5224186 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:2	RMSE:0.7489990759847539
+2013-05-01 01:53:22,731 -9132751 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:3	RMSE:0.7434145520881976
+2013-05-01 05:31:19,243 -22209263 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:4	RMSE:0.7463859567505586
+2013-05-01 05:31:19,244 -22209264 [main] WARN  baidu.zjl.train.LFMWithBiase  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	avgRMSE:0.7180474502897629
+2013-05-01 05:42:27,425 -22877445 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:0	RMSE:0.6328239901597033
+2013-05-01 06:06:24,134 -24314154 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:1	RMSE:0.713071021660309
+2013-05-01 06:54:59,863 -27229883 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:2	RMSE:0.7521235450524396
+2013-05-01 07:59:53,302 -31123322 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:3	RMSE:0.7470710650340125
+2013-05-01 11:32:14,091 -43864111 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:4	RMSE:0.7495239150350813
+2013-05-01 11:32:14,113 -43864133 [main] WARN  baidu.zjl.train.LFMWithBiase  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	avgRMSE:0.7189227073883091
+2013-05-01 11:40:55,025 -44385045 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:0	RMSE:0.6453552300406332
+2013-05-01 12:04:25,623 -45795643 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:1	RMSE:0.7086337989322674
+2013-05-01 12:52:56,284 -48706304 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:2	RMSE:0.7504076921463101
+2013-05-01 13:57:58,807 -52608827 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:3	RMSE:0.7463272258274221
+2013-05-01 17:29:41,408 -65311428 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:4	RMSE:0.747728222277325
+2013-05-01 17:29:41,428 -65311448 [main] WARN  baidu.zjl.train.LFMWithBiase  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	avgRMSE:0.7196904338447916
+2013-05-01 17:39:45,855 -65915875 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:0	RMSE:0.6376467995000145
+2013-05-01 18:03:39,629 -67349649 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:1	RMSE:0.7165787534635855
+2013-05-01 18:52:08,508 -70258528 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:2	RMSE:0.7480206207479474
+2013-05-01 19:57:10,417 -74160437 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:3	RMSE:0.7427277495396397
+2013-05-01 20:53:54,916 -797903 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:4	RMSE:0.6330326819508726
