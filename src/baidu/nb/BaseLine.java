@@ -4,6 +4,11 @@ import org.apache.log4j.Logger;
 
 import baidu.entity.Record;
 
+/**
+ * 使用 mu+bu+bi进行预测
+ * 
+ * @author WangFengwei
+ */
 public class BaseLine extends AbstractMethod {
 
 	protected static final Logger LOG = Logger.getLogger(BaseLine.class);
@@ -27,7 +32,7 @@ public class BaseLine extends AbstractMethod {
 		bl.outputPredict("resource/zjl/BaseLine-iter" + iterCount + "-alpha"
 				+ alpha);
 	}
-	
+
 	@Override
 	public void train(String trainf) {
 

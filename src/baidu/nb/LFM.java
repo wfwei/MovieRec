@@ -6,6 +6,14 @@ import org.apache.log4j.Logger;
 
 import baidu.entity.Record;
 
+/**
+ * Latent Factor Model
+ * <p>
+ * 使用基本的LFM，即是用 rui = P*Q
+ * 
+ * @author WangFengwei
+ * 
+ */
 public class LFM extends AbstractMethod {
 
 	protected int feature;

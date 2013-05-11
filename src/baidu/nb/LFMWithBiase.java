@@ -8,6 +8,12 @@ import org.apache.log4j.Logger;
 import baidu.entity.Record;
 import baidu.zjl.util.DataUtil;
 
+/**
+ * rui = mu + bu + bi + Pu*Qi
+ * 
+ * @author WangFengwei
+ * 
+ */
 public class LFMWithBiase extends LFM {
 
 	protected double mu;
@@ -110,6 +116,7 @@ public class LFMWithBiase extends LFM {
 		return res;
 	}
 
+	@SuppressWarnings("unused")
 	private double boost(double rate) {
 		double ret = rate - Math.floor(rate) - 0.5;
 		ret *= 0.5 - Math.abs(ret);

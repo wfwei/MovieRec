@@ -18,6 +18,11 @@ import org.apache.log4j.Logger;
 import baidu.entity.Record;
 import baidu.zjl.simmetrics.CosineSimilarity;
 
+/**
+ * 使用原始的基于item的CF方法
+ * 
+ * @author WangFengwei
+ */
 public class ItemBasedCFRaw {
 
 	private int maxK;

@@ -9,10 +9,16 @@ import org.apache.log4j.Logger;
 
 import baidu.entity.Record;
 
-public class BasicTrial extends AbstractMethod {
+
+/**
+ * 使用最简单的几种预测方式：全局平均值，用户平均值，项目平均值，随机
+ * 
+ * @author WangFengwei
+ */
+public class SimpleTrial extends AbstractMethod {
 
 	public static void main(String[] args) {
-		BasicTrial itcf = new BasicTrial();
+		SimpleTrial itcf = new SimpleTrial();
 		String trainf = "resource/processedData/trainingSet", predictf = "resource/processedData/predict";
 		itcf.train(trainf);
 		itcf.initPredict(predictf, false);
@@ -32,7 +38,7 @@ public class BasicTrial extends AbstractMethod {
 	private HashMap<Integer, RateInfo> item = new HashMap<Integer, RateInfo>();
 	private HashMap<Integer, RateInfo> user = new HashMap<Integer, RateInfo>();
 	private List<Record> predict = new ArrayList<Record>();
-	private static final Logger LOG = Logger.getLogger(BasicTrial.class);
+	private static final Logger LOG = Logger.getLogger(SimpleTrial.class);
 
 	public void train(String trainf) {
 		try {
