@@ -21,3 +21,6 @@
 2013-05-01 18:52:08,508 -70258528 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:2	RMSE:0.7480206207479474
 2013-05-01 19:57:10,417 -74160437 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:3	RMSE:0.7427277495396397
 2013-05-01 20:53:54,916 -797903 [main] WARN  baidu.zjl.train.LFM  - LFMWithBias-fea20-iter200-alpha0.0000-lamda0.0500	i:4	RMSE:0.6330326819508726
+2013-05-18 19:39:27,795 -252260 [main] WARN  baidu.nb.BaseLine  - FNM-iter100-alpha0.0004-lamda0.0050	i:0	RMSE:0.6503780264162511
+2013-05-18 20:06:23,890 -249317 [main] WARN  baidu.nb.BaseLine  - FNM-iter100-alpha0.0004-lamda0.0050	i:0	RMSE:0.6503780281200072
+2013-05-18 20:29:57,470 -265986 [main] WARN  baidu.nb.BaseLine  - FNM-iter100-alpha0.0004-lamda0.0050	i:0	RMSE:0.6583454290548502

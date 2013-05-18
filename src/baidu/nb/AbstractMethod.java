@@ -52,7 +52,7 @@ public abstract class AbstractMethod {
 		rmse = Math.sqrt(rmse / count);
 		return rmse;
 	}
-	
+
 	protected abstract double calcCost();
 
 	public void predict() {
@@ -131,8 +131,8 @@ public abstract class AbstractMethod {
 
 	protected double crossValidate() {
 		double avgRMSE = 0d;
-
-		for (int i = 4; i >= 0; i++) {
+		int i;
+		for (i = 0; i <= 0; i++) {
 			String trainf = "resource/processedData/training-" + i;
 			String predictf = "resource/processedData/testing-" + i;
 			train(trainf);
@@ -153,7 +153,7 @@ public abstract class AbstractMethod {
 			LOG.warn(toString() + "\ti:" + i + "\tRMSE:" + rmse);
 		}
 
-		return avgRMSE / 5;
+		return avgRMSE / (i + 1);
 	}
 
 	protected class RateInfo {

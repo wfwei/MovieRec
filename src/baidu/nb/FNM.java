@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import baidu.entity.Record;
-import baidu.nb.AbstractMethod.RateInfo;
 
 /**
  * FNM(Factorized Neighborhood Model)<b>
@@ -20,10 +19,17 @@ import baidu.nb.AbstractMethod.RateInfo;
 public class FNM extends AbstractMethod {
 
 	protected int feature;
-	protected HashMap<Integer, HashMap<Integer, Double>> userRates;
-	protected List<List<Double>> Q; // itemCount × feature
-	protected List<List<Double>> X; // itemCount × feature
-	protected List<List<Double>> Y; // itemCount × feature
+
+	protected HashMap<Integer, HashMap<Integer, Double>> userRates = new HashMap<Integer, HashMap<Integer, Double>>();
+
+	protected List<List<Double>> P = new ArrayList<List<Double>>(); // userCount
+																	// × feature
+	protected List<List<Double>> Q = new ArrayList<List<Double>>(); // itemCount
+																	// × feature
+	protected List<List<Double>> X = new ArrayList<List<Double>>(); // itemCount
+																	// × feature
+	protected List<List<Double>> Y = new ArrayList<List<Double>>(); // itemCount
+																	// × feature
 	protected static final Logger LOG = Logger.getLogger(FNM.class);
 
 	public FNM(int feature, int iterCount, double alpha, double lambda) {
@@ -34,17 +40,18 @@ public class FNM extends AbstractMethod {
 	}
 
 	public static void main(String[] args) {
-		int feature = 100, iterCount = 100;
+		int feature = 50, iterCount = 100;
 		double alpha = 0.05, lamda = 0.005;
-		FNM bl = new FNM(feature, iterCount, alpha, lamda);
+		FNM fnm = new FNM(feature, iterCount, alpha, lamda);
 
-		String trainf = "resource/processedData/trainingSet";
-		String predictf = "resource/processedData/predict";
-		bl.train(trainf);
-		bl.initPredict(predictf, false);
-		bl.predict();
-		bl.outputPredict("resource/zjl/BaseLine-iter" + iterCount + "-alpha"
-				+ alpha);
+		fnm.crossValidate();
+		// String trainf = "resource/processedData/trainingSet";
+		// String predictf = "resource/processedData/predict";
+		// fnm.train(trainf);
+		// fnm.initPredict(predictf, false);
+		// fnm.predict();
+		// fnm.outputPredict("resource/zjl/BaseLine-iter" + iterCount + "-alpha"
+		// + alpha);
 	}
 
 	@Override
@@ -58,7 +65,7 @@ public class FNM extends AbstractMethod {
 			initParas();
 
 			// 初始化Bui
-			initBui();
+			trainBui();
 
 			// FNM训练
 			trainFNM();
@@ -70,12 +77,14 @@ public class FNM extends AbstractMethod {
 	}
 
 	private void trainFNM() {
-		double lastRMSE = 100d;
-
+		double localAlpha = alpha;
 		for (int iter = 0; iter < iterCount; iter++) {
+			
 			for (Integer userid : userRates.keySet()) {
-				List<Double> pu = new ArrayList<Double>();
-				List<Double> pu2 = new ArrayList<Double>();
+				List<Double> pu = P.get(userid);
+
+				List<Double> pu1 = newRandList(feature, 0, 0);
+				List<Double> pu2 = newRandList(feature, 0, 0);
 
 				// Calculate pu
 				double rateCoef = 0d, binCoef = 0d;
@@ -85,64 +94,83 @@ public class FNM extends AbstractMethod {
 					int itemid = itemrate.getKey();
 					double rate = itemrate.getValue();
 					for (int f = 0; f < feature; f++) {
-						pu.set(f,
-								(rate - bPredict(userid, itemid))
-										* X.get(itemid).get(f));
-						rateCoef += rate * rate;
-						pu2.set(f, Y.get(itemid).get(f));
+						double eui = rate - bPredict(userid, itemid);
+						pu1.set(f, pu1.get(f) + eui * X.get(itemid).get(f));
+						rateCoef += eui * eui;
+						pu2.set(f, pu2.get(f) + Y.get(itemid).get(f));
 					}
 				}
-				rateCoef = Math.pow(rateCoef, -0.5d);
+				rateCoef = Math.pow(rateCoef/feature, -0.5d);
 				binCoef = Math.pow(totRate, -0.5d);
 
 				for (int f = 0; f < feature; f++) {
-					pu.set(f, pu.get(f) * rateCoef + pu2.get(f) * binCoef);
+					pu.set(f, pu1.get(f) * rateCoef + pu2.get(f) * binCoef);
 				}
 
 				// gradient descent
+				RateInfo bu = users.get(userid);
 				List<Double> sum = newRandList(feature, 0, 0);
 				for (Entry<Integer, Double> itemrate : userRates.get(userid)
 						.entrySet()) {
 					int itemid = itemrate.getKey();
 					double rate = itemrate.getValue();
-					double pui = predict(userid, itemid, pu);
+					double pui = predict(userid, itemid);
 					double Eui = rate - pui;
+					System.out.println("Iter:" + iter + "\tEui:" + Eui);
+					List<Double> Qi = Q.get(itemid);
+					RateInfo bi = items.get(itemid);
 
 					for (int f = 0; f < feature; f++) {
-						sum.set(f, sum.get(f) + Eui * Q.get(itemid).get(f));
+						sum.set(f, sum.get(f) + Eui * Qi.get(f));
 					}
-					
-					// HERE
 
+					for (int f = 0; f < feature; f++) {
+						double gradientQif = -Eui * pu.get(f) + lambda
+								* Qi.get(f);
+						Qi.set(f, Qi.get(f) - localAlpha * gradientQif);
+
+						double gradientBu = -Eui + lambda * bu.getAvg();
+						bu.setAvg(bu.getAvg() - localAlpha * gradientBu);
+
+						double gradientBi = -Eui + lambda * bi.getAvg();
+						bi.setAvg(bi.getAvg() - localAlpha * gradientBi);
+
+					}
+				}
+
+				for (Entry<Integer, Double> itemrate : userRates.get(userid)
+						.entrySet()) {
+					int itemid = itemrate.getKey();
+					double rate = itemrate.getValue();
+					List<Double> Xi = X.get(itemid);
+					List<Double> Yi = Y.get(itemid);
+
+					for (int f = 0; f < feature; f++) {
+						double gradientXif = -rateCoef * (rate - bu.getAvg())
+								* sum.get(f) + lambda * Xi.get(f);
+						Xi.set(f, Xi.get(f) - localAlpha * gradientXif);
+						double gradientYif = -binCoef * sum.get(f) + lambda
+								* Yi.get(f);
+						Yi.set(f, Yi.get(f) - localAlpha * gradientYif);
+					}
 				}
 
 			}
-			/**
-			 * for (Record rd : records) { int u = rd.getUserId() - 1; int i =
-			 * rd.getMovieId() - 1;
-			 * 
-			 * double rui = rd.getScore(); double pui = predict(u, i); double bu
-			 * = users.get(u).getAvg(); double bi = items.get(i).getAvg();
-			 * 
-			 * double gradientBu = lambda * bu - (rui - pui); double gradientBi
-			 * = lambda * bi - (rui - pui);
-			 * 
-			 * users.get(u).setAvg(bu - alpha * gradientBu);
-			 * items.get(i).setAvg(bi - alpha * gradientBi); } double rmse =
-			 * calcRMSE(); if (rmse > 1) alpha *= 1.05; else alpha *= 0.95;
-			 * LOG.info("iterater:" + iter + "\trmse:" + rmse); if (lastRMSE -
-			 * rmse < 0.00001) break; else lastRMSE = rmse;
-			 **/
+			localAlpha *= 0.95;
+			// calculate RMSE
+			double rmse = calcRMSE();
+			LOG.info("FNM\titer:" + iter + "\trmse:" + rmse);
 		}
 	}
 
 	/**
 	 * 使用梯度下降求解Bui
 	 */
-	private void initBui() {
+	private void trainBui() {
 		double lastRMSE = 100d;
+		double localAlpha = alpha;
 
-		for (int iter = 0; iter < iterCount; iter++) {
+		for (int iter = 0; iter < iterCount >> 2; iter++) {
 			for (Record rd : records) {
 				int u = rd.getUserId() - 1;
 				int i = rd.getMovieId() - 1;
@@ -155,15 +183,15 @@ public class FNM extends AbstractMethod {
 				double gradientBu = lambda * bu - (rui - pui);
 				double gradientBi = lambda * bi - (rui - pui);
 
-				users.get(u).setAvg(bu - alpha * gradientBu);
-				items.get(i).setAvg(bi - alpha * gradientBi);
+				users.get(u).setAvg(bu - localAlpha * gradientBu);
+				items.get(i).setAvg(bi - localAlpha * gradientBi);
 			}
 			double rmse = calcRMSE();
 			if (rmse > 1)
-				alpha *= 1.05;
+				localAlpha *= 1.05;
 			else
-				alpha *= 0.95;
-			LOG.info("iterater:" + iter + "\trmse:" + rmse);
+				localAlpha *= 0.95;
+			LOG.info("trainBui\titer:" + iter + "\trmse:" + rmse);
 			if (lastRMSE - rmse < 0.00001)
 				break;
 			else
@@ -175,9 +203,10 @@ public class FNM extends AbstractMethod {
 		return mu + users.get(u).getAvg() + items.get(i).getAvg();
 	}
 
-	protected double predict(int u, int i, List<Double> pu) {
-		return mu + users.get(u).getAvg() + items.get(i).getAvg()
-				+ getProduct(Q.get(i), pu);
+	@Override
+	protected double predict(int userid, int itemid) {
+		return mu + users.get(userid).getAvg() + items.get(itemid).getAvg()
+				+ getProduct(Q.get(itemid), P.get(userid));
 	}
 
 	@Override
@@ -207,11 +236,9 @@ public class FNM extends AbstractMethod {
 
 		for (RateInfo bu : users.values()) {
 			bu.calcAvg();
+			P.add(newRandList(feature, 0, 0));
 		}
 
-		Q = new ArrayList<List<Double>>();
-		X = new ArrayList<List<Double>>();
-		Y = new ArrayList<List<Double>>();
 		for (RateInfo bi : items.values()) {
 			bi.calcAvg();
 			Q.add(newRandList(feature, 0d, Math.sqrt(1.0 / feature)));
@@ -224,8 +251,8 @@ public class FNM extends AbstractMethod {
 
 	@Override
 	public String toString() {
-		return "BaseLineWithMuBiBu-iter" + iterCount + "-alpha"
-				+ df.format(alpha) + "-lamda" + df.format(lambda);
+		return "FNM-iter" + iterCount + "-alpha" + df.format(alpha) + "-lamda"
+				+ df.format(lambda);
 	}
 
 	@Override
@@ -233,8 +260,4 @@ public class FNM extends AbstractMethod {
 		throw new RuntimeException("Not implemeted yet...");
 	}
 
-	@Override
-	protected double predict(int userid, int itemid) {
-		throw new RuntimeException("not implented");
-	}
 }
