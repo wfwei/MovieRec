@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import baidu.entity.Record;
 
 /**
- * FNM(Factorized Neighborhood Model)<b>
+ * FNM(Factorized Neighborhood Model)<b/>
  * 
  * 使用 mu+bu+bi+qi*(xu+yu)进行预测
  * 
@@ -44,14 +44,14 @@ public class FNM extends AbstractMethod {
 		double alpha = 0.05, lamda = 0.005;
 		FNM fnm = new FNM(feature, iterCount, alpha, lamda);
 
-		fnm.crossValidate();
-		// String trainf = "resource/processedData/trainingSet";
-		// String predictf = "resource/processedData/predict";
-		// fnm.train(trainf);
-		// fnm.initPredict(predictf, false);
-		// fnm.predict();
-		// fnm.outputPredict("resource/zjl/BaseLine-iter" + iterCount + "-alpha"
-		// + alpha);
+		// fnm.crossValidate();
+		String trainf = "resource/processedData/trainingSet";
+		String predictf = "resource/processedData/predict";
+		fnm.train(trainf);
+		fnm.initPredict(predictf, false);
+		fnm.predict();
+		fnm.outputPredict("resource/zjl/BaseLine-iter" + iterCount + "-alpha"
+				+ alpha);
 	}
 
 	@Override
@@ -78,30 +78,30 @@ public class FNM extends AbstractMethod {
 
 	private void trainFNM() {
 		double localAlpha = alpha;
-		for (int iter = 0; iter < iterCount; iter++) {
-			
-			for (Integer userid : userRates.keySet()) {
-				List<Double> pu = P.get(userid);
 
+		for (int iter = 0; iter < iterCount; iter++) {
+			for (Integer userid : userRates.keySet()) {
+
+				List<Double> pu = P.get(userid);
 				List<Double> pu1 = newRandList(feature, 0, 0);
 				List<Double> pu2 = newRandList(feature, 0, 0);
 
 				// Calculate pu
 				double rateCoef = 0d, binCoef = 0d;
-				int totRate = userRates.get(userid).size();
 				for (Entry<Integer, Double> itemrate : userRates.get(userid)
 						.entrySet()) {
 					int itemid = itemrate.getKey();
 					double rate = itemrate.getValue();
+					double eui = rate - bPredict(userid, itemid);
 					for (int f = 0; f < feature; f++) {
-						double eui = rate - bPredict(userid, itemid);
 						pu1.set(f, pu1.get(f) + eui * X.get(itemid).get(f));
-						rateCoef += eui * eui;
+						rateCoef += Math.abs(eui); // TODO problem?
 						pu2.set(f, pu2.get(f) + Y.get(itemid).get(f));
+						binCoef += 1;// 1*1;
 					}
 				}
-				rateCoef = Math.pow(rateCoef/feature, -0.5d);
-				binCoef = Math.pow(totRate, -0.5d);
+				rateCoef = Math.pow(rateCoef / feature, -0.5d);
+				binCoef = Math.pow(binCoef, -0.5d);
 
 				for (int f = 0; f < feature; f++) {
 					pu.set(f, pu1.get(f) * rateCoef + pu2.get(f) * binCoef);
@@ -116,9 +116,11 @@ public class FNM extends AbstractMethod {
 					double rate = itemrate.getValue();
 					double pui = predict(userid, itemid);
 					double Eui = rate - pui;
-					System.out.println("Iter:" + iter + "\tEui:" + Eui);
 					List<Double> Qi = Q.get(itemid);
 					RateInfo bi = items.get(itemid);
+					
+					LOG.info(String.format("FNM\titer:%d\trate:%s\tpredict:%f", iter, 
+							df.format(rate), pui));
 
 					for (int f = 0; f < feature; f++) {
 						sum.set(f, sum.get(f) + Eui * Qi.get(f));
@@ -134,7 +136,6 @@ public class FNM extends AbstractMethod {
 
 						double gradientBi = -Eui + lambda * bi.getAvg();
 						bi.setAvg(bi.getAvg() - localAlpha * gradientBi);
-
 					}
 				}
 
@@ -170,7 +171,7 @@ public class FNM extends AbstractMethod {
 		double lastRMSE = 100d;
 		double localAlpha = alpha;
 
-		for (int iter = 0; iter < iterCount >> 2; iter++) {
+		for (int iter = 0; iter < iterCount; iter++) {
 			for (Record rd : records) {
 				int u = rd.getUserId() - 1;
 				int i = rd.getMovieId() - 1;
@@ -205,7 +206,7 @@ public class FNM extends AbstractMethod {
 
 	@Override
 	protected double predict(int userid, int itemid) {
-		return mu + users.get(userid).getAvg() + items.get(itemid).getAvg()
+		return bPredict(userid, itemid)
 				+ getProduct(Q.get(itemid), P.get(userid));
 	}
 
@@ -241,9 +242,9 @@ public class FNM extends AbstractMethod {
 
 		for (RateInfo bi : items.values()) {
 			bi.calcAvg();
-			Q.add(newRandList(feature, 0d, Math.sqrt(1.0 / feature)));
-			X.add(newRandList(feature, 0d, Math.sqrt(1.0 / feature)));
-			Y.add(newRandList(feature, 0d, Math.sqrt(1.0 / feature)));
+			Q.add(newRandList(feature, 0d, Math.random()));
+			X.add(newRandList(feature, 0d, Math.random()));
+			Y.add(newRandList(feature, 0d, Math.random()));
 		}
 
 		LOG.info("Init Over: users=" + users.size() + " items=" + items.size());

@@ -3,3 +3,4 @@ log
 log.*
 bin/*
 *.clasis
+/bin

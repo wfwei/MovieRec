@@ -189,9 +189,8 @@ public abstract class AbstractMethod {
 	protected List<Double> newRandList(int size, double minValue,
 			double maxValue) {
 		List<Double> list = new ArrayList<Double>(size);
-		while (size > 0) {
-			list.add(minValue + Math.random() * maxValue);
-			size--;
+		for(int i=0; i<size; i++){
+			list.add(minValue + (maxValue-minValue) * Math.random());
 		}
 		return list;
 	}
