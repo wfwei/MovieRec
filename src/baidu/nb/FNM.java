@@ -41,7 +41,7 @@ public class FNM extends AbstractMethod {
 
 	public static void main(String[] args) {
 		int feature = 50, iterCount = 100;
-		double alpha = 0.05, lamda = 0.005;
+		double alpha = 0.04, lamda = 0.002;
 		FNM fnm = new FNM(feature, iterCount, alpha, lamda);
 
 		// fnm.crossValidate();
@@ -76,10 +76,12 @@ public class FNM extends AbstractMethod {
 
 	}
 
+	// TODO 梯度下降有问题，会发散
 	private void trainFNM() {
 		double localAlpha = alpha;
 
 		for (int iter = 0; iter < iterCount; iter++) {
+
 			for (Integer userid : userRates.keySet()) {
 
 				List<Double> pu = P.get(userid);
@@ -95,7 +97,7 @@ public class FNM extends AbstractMethod {
 					double eui = rate - bPredict(userid, itemid);
 					for (int f = 0; f < feature; f++) {
 						pu1.set(f, pu1.get(f) + eui * X.get(itemid).get(f));
-						rateCoef += Math.abs(eui); // TODO problem?
+						rateCoef += eui * eui; // TODO problem?
 						pu2.set(f, pu2.get(f) + Y.get(itemid).get(f));
 						binCoef += 1;// 1*1;
 					}
@@ -109,7 +111,7 @@ public class FNM extends AbstractMethod {
 
 				// gradient descent
 				RateInfo bu = users.get(userid);
-				List<Double> sum = newRandList(feature, 0, 0);
+				// List<Double> sum = newRandList(feature, 0, 0);
 				for (Entry<Integer, Double> itemrate : userRates.get(userid)
 						.entrySet()) {
 					int itemid = itemrate.getKey();
@@ -118,13 +120,10 @@ public class FNM extends AbstractMethod {
 					double Eui = rate - pui;
 					List<Double> Qi = Q.get(itemid);
 					RateInfo bi = items.get(itemid);
-					
-					LOG.info(String.format("FNM\titer:%d\trate:%s\tpredict:%f", iter, 
-							df.format(rate), pui));
 
-					for (int f = 0; f < feature; f++) {
-						sum.set(f, sum.get(f) + Eui * Qi.get(f));
-					}
+					LOG.info(String.format("FNM\titer:%d\trate:%s\tpredict:%f",
+							iter, df.format(rate), pui));
+
 
 					for (int f = 0; f < feature; f++) {
 						double gradientQif = -Eui * pu.get(f) + lambda
@@ -137,22 +136,27 @@ public class FNM extends AbstractMethod {
 						double gradientBi = -Eui + lambda * bi.getAvg();
 						bi.setAvg(bi.getAvg() - localAlpha * gradientBi);
 					}
-				}
 
-				for (Entry<Integer, Double> itemrate : userRates.get(userid)
-						.entrySet()) {
-					int itemid = itemrate.getKey();
-					double rate = itemrate.getValue();
-					List<Double> Xi = X.get(itemid);
-					List<Double> Yi = Y.get(itemid);
+					for (Entry<Integer, Double> jrate : userRates.get(userid)
+							.entrySet()) {
 
-					for (int f = 0; f < feature; f++) {
-						double gradientXif = -rateCoef * (rate - bu.getAvg())
-								* sum.get(f) + lambda * Xi.get(f);
-						Xi.set(f, Xi.get(f) - localAlpha * gradientXif);
-						double gradientYif = -binCoef * sum.get(f) + lambda
-								* Yi.get(f);
-						Yi.set(f, Yi.get(f) - localAlpha * gradientYif);
+						int j = jrate.getKey();
+						double r = jrate.getValue();
+
+						List<Double> Xj = X.get(j);
+						List<Double> Yj = Y.get(j);
+
+						for (int f = 0; f < feature; f++) {
+
+							double gradientXjf = -rateCoef
+									* (r - bPredict(userid, j)) * Eui
+									* Qi.get(f) + lambda * Xj.get(f);
+							Xj.set(f, Xj.get(f) - localAlpha * gradientXjf);
+
+							double gradientYjf = -binCoef * Eui * Qi.get(f)
+									+ lambda * Yj.get(f);
+							Yj.set(f, Yj.get(f) - localAlpha * gradientYjf);
+						}
 					}
 				}
 
@@ -242,9 +246,9 @@ public class FNM extends AbstractMethod {
 
 		for (RateInfo bi : items.values()) {
 			bi.calcAvg();
-			Q.add(newRandList(feature, 0d, Math.random()));
-			X.add(newRandList(feature, 0d, Math.random()));
-			Y.add(newRandList(feature, 0d, Math.random()));
+			Q.add(newRandList(feature, 0d, Math.random()/feature));
+			X.add(newRandList(feature, 0d, Math.random()/feature));
+			Y.add(newRandList(feature, 0d, Math.random()/feature));
 		}
 
 		LOG.info("Init Over: users=" + users.size() + " items=" + items.size());
