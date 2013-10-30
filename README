@@ -1,0 +1,36 @@
+
+## MovieRec(Movie Recommendation)
+
+参加[百度电影推荐比赛](http://openresearch.baidu.com/activitycontent.jhtml;jsessionid=E6B9D91A7EBAFED318F514DFAA899523?channelId=284)的工程
+
+**任务描述**
+
+任务描述：从用户的历史评分数据：userid,movieid,rating， 即用户对某个电影的评分，预测用户将会对一个未评分的电影打多少分。
+
+**数据描述**
+
+官方提供了5个数据文件，文件名分别是:training_set、predict，movie_tag、user_social、user_history，可以去官网下载
+
+该工程使用的数据文件是处理后的，参见`resource/processedData`，主要就是对电影和用户做了ID映射
+
+**算法描述**
+
+由于初次接触评分预测问题，只实现了几个基本基于邻域的方法：
+
+1. BaseLine的方法：使用全局平均分，用户平均分，电影平均分之和作为评分，参见`baidu.nb.BaseLine.java`
+2. <s>基于用户协同过滤</s>
+3. 基于项目协同过滤
+4. 潜在语义模型(Latent Factor Model)，参考的SVD, 实现，参见`baidu.nb.LFM.java`
+5. 潜在语义模型(Latent Factor Model)，参考的BaisedSVD, 实现，参见`baidu.nb.LFMWithBiase.java`
+
+**参考**
+
+上面这些模型的实现，主要参考了Koren大神的Netflix比赛中使用的方法～
+
+相关论文[matrix factorization techniques for recommender systems](http://www2.research.att.com/~volinsky/papers/ieeecomputer.pdf)等
+相关博客[Winning the Netflix Prize: A Summary](http://blog.echen.me/2011/10/24/winning-the-netflix-prize-a-summary/)等
+
+## 使用
+
+`baidu.nb`包下是算法的实现，每个实现里都有`main`函数，直接执行即可
+

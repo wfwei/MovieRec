@@ -1,6 +1,4 @@
-resource/*
-log
+*.log
 log.*
 bin/*
-*.clasis
-/bin
+*.class

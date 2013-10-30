@@ -41,7 +41,7 @@ public class FNM extends AbstractMethod {
 
 	public static void main(String[] args) {
 		int feature = 50, iterCount = 100;
-		double alpha = 0.04, lamda = 0.002;
+		double alpha = 0.01, lamda = 0.002;
 		FNM fnm = new FNM(feature, iterCount, alpha, lamda);
 
 		// fnm.crossValidate();
@@ -84,11 +84,10 @@ public class FNM extends AbstractMethod {
 
 			for (Integer userid : userRates.keySet()) {
 
+				// Calculate pu
 				List<Double> pu = P.get(userid);
 				List<Double> pu1 = newRandList(feature, 0, 0);
 				List<Double> pu2 = newRandList(feature, 0, 0);
-
-				// Calculate pu
 				double rateCoef = 0d, binCoef = 0d;
 				for (Entry<Integer, Double> itemrate : userRates.get(userid)
 						.entrySet()) {
@@ -104,7 +103,6 @@ public class FNM extends AbstractMethod {
 				}
 				rateCoef = Math.pow(rateCoef / feature, -0.5d);
 				binCoef = Math.pow(binCoef, -0.5d);
-
 				for (int f = 0; f < feature; f++) {
 					pu.set(f, pu1.get(f) * rateCoef + pu2.get(f) * binCoef);
 				}
@@ -121,9 +119,10 @@ public class FNM extends AbstractMethod {
 					List<Double> Qi = Q.get(itemid);
 					RateInfo bi = items.get(itemid);
 
-					LOG.info(String.format("FNM\titer:%d\trate:%s\tpredict:%f",
-							iter, df.format(rate), pui));
-
+					// LOG.info(String.format("FNM\titer:%d\trate:%s\tpredict:%f",
+					// iter, df.format(rate), pui));
+					System.out.format("FNM\titer:%d\trate:%s\tpredict:%f\n",
+							iter, df.format(rate), pui);
 
 					for (int f = 0; f < feature; f++) {
 						double gradientQif = -Eui * pu.get(f) + lambda
@@ -246,9 +245,9 @@ public class FNM extends AbstractMethod {
 
 		for (RateInfo bi : items.values()) {
 			bi.calcAvg();
-			Q.add(newRandList(feature, 0d, Math.random()/feature));
-			X.add(newRandList(feature, 0d, Math.random()/feature));
-			Y.add(newRandList(feature, 0d, Math.random()/feature));
+			Q.add(newRandList(feature, 0d, Math.random() / feature));
+			X.add(newRandList(feature, 0d, Math.random() / feature));
+			Y.add(newRandList(feature, 0d, Math.random() / feature));
 		}
 
 		LOG.info("Init Over: users=" + users.size() + " items=" + items.size());
